@@ -2,21 +2,13 @@
 
 namespace Envms\FluentPDO;
 
-require __DIR__ . '/_resources/init.php';
-
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class StructureTest
- *
- * @covers \Envms\FluentPDO\Structure
- */
 class RegexTest extends TestCase
 {
-    /** @var Regex */
-    protected $regex;
+    private Regex $regex;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->regex = new Regex();
     }
@@ -112,5 +104,4 @@ class RegexTest extends TestCase
         $join = $this->regex->tableJoinFull("ㇽㇺㇴ.ㇱ");
         self::assertEquals(1, $join);
     }
-
 }

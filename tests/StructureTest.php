@@ -2,18 +2,10 @@
 
 namespace Envms\FluentPDO;
 
-require __DIR__ . '/_resources/init.php';
-
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class StructureTest
- *
- * @covers \Envms\FluentPDO\Structure
- */
 class StructureTest extends TestCase
 {
-
     public function testBasicKey()
     {
         $structure = new Structure();

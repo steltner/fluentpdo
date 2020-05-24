@@ -2,32 +2,10 @@
 
 namespace Envms\FluentPDO;
 
-require __DIR__ . '/_resources/init.php';
-
-use PDO;
-use PHPUnit\Framework\TestCase;
-
-/**
- * Class UtilitiesTest
- */
-class UtilitiesTest extends TestCase
+class UtilitiesTest extends PDOTestCase
 {
-
-    /** @var Query */
-    protected $fluent;
-
-    public function setUp()
-    {
-        global $pdo;
-
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
-
-        $this->fluent = new Query($pdo);
-    }
-
     public function testFluentUtil()
     {
-
         $value = Utilities::toUpperWords('one');
         $value2 = Utilities::toUpperWords(' one ');
         $value3 = Utilities::toUpperWords('oneTwo');
@@ -97,5 +75,4 @@ class UtilitiesTest extends TestCase
         self::assertEquals(true, Utilities::isCountable($selectQuery));
         self::assertEquals(false, Utilities::isCountable($deleteQuery));
     }
-
 }

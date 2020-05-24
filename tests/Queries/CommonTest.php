@@ -2,34 +2,13 @@
 
 namespace Envms\FluentPDO\Queries;
 
-require __DIR__ . '/../_resources/init.php';
-
+use Envms\FluentPDO\PDOTestCase;
 use PDO;
-use PHPUnit\Framework\TestCase;
 use Envms\FluentTest\Model\User;
-use Envms\FluentPDO\Query;
 use stdClass;
 
-/**
- * Class CommonTest
- *
- * @covers \Envms\FluentPDO\Queries\Common
- */
-class CommonTest extends TestCase
+class CommonTest extends PDOTestCase
 {
-
-    /** @var Query */
-    protected $fluent;
-
-    public function setUp()
-    {
-        global $pdo;
-
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
-
-        $this->fluent = new Query($pdo);
-    }
-
     public function testFullJoin()
     {
         $query = $this->fluent->from('article')
@@ -111,12 +90,12 @@ class CommonTest extends TestCase
         self::assertEquals('SELECT comment.*, comment_author.name AS comment_name, article_author.name AS author_name FROM comment LEFT JOIN user AS comment_author ON comment_author.id = comment.user_id  LEFT JOIN article ON article.id = comment.article_id  LEFT JOIN user AS article_author ON article_author.id = article.user_id WHERE comment.id = ?',
             $query->getQuery(false));
         self::assertEquals([
-            'id'           => '2',
-            'article_id'   => '1',
-            'user_id'      => '2',
-            'content'      => 'comment 1.2',
+            'id' => '2',
+            'article_id' => '1',
+            'user_id' => '2',
+            'content' => 'comment 1.2',
             'comment_name' => 'Robert',
-            'author_name'  => 'Marek'
+            'author_name' => 'Marek'
         ], $query->fetch());
     }
 

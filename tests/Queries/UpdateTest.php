@@ -2,33 +2,11 @@
 
 namespace Envms\FluentPDO\Queries;
 
-require __DIR__ . '/../_resources/init.php';
-
 use Envms\FluentPDO\Literal;
-use PDO;
-use PHPUnit\Framework\TestCase;
-use Envms\FluentPDO\Query;
+use Envms\FluentPDO\PDOTestCase;
 
-/**
- * Class UpdateTest
- *
- * @covers \Envms\FluentPDO\Queries\Update
- */
-class UpdateTest extends TestCase
+class UpdateTest extends PDOTestCase
 {
-
-    /** @var Query */
-    protected $fluent;
-
-    public function setUp()
-    {
-        global $pdo;
-
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
-
-        $this->fluent = new Query($pdo);
-    }
-
     public function testUpdate()
     {
         $query = $this->fluent->update('country')->set('name', 'aikavolS')->where('id', 1);
@@ -69,8 +47,10 @@ class UpdateTest extends TestCase
             ->set(['name' => 'keraM', '`type`' => 'author'])
             ->where('id', 1);
 
-        self::assertEquals('UPDATE user OUTER JOIN country ON country.id = user.country_id SET name = ?, `type` = ? WHERE id = ?',
-            $query->getQuery(false));
+        self::assertEquals(
+            'UPDATE user OUTER JOIN country ON country.id = user.country_id SET name = ?, `type` = ? WHERE id = ?',
+            $query->getQuery(false)
+        );
         self::assertEquals([0 => 'keraM', 1 => 'author', 2 => '1'], $query->getParameters());
     }
 
@@ -134,11 +114,15 @@ class UpdateTest extends TestCase
             ->where("[country].[name]", 'Slovakia')
             ->where("[users].[name]", 'Marek');
 
-        self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET `users`.`active` = ? WHERE `country`.`name` = ? AND `users`.`name` = ?',
-            $query->getQuery(false));
+        self::assertEquals(
+            'UPDATE users LEFT JOIN country ON country.id = users.country_id SET `users`.`active` = ? WHERE `country`.`name` = ? AND `users`.`name` = ?',
+            $query->getQuery(false)
+        );
         self::assertEquals([0 => '1', 1 => 'Slovakia', 2 => 'Marek'], $query->getParameters());
-        self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET [users].[active] = ? WHERE [country].[name] = ? AND [users].[name] = ?',
-            $query2->getQuery(false));
+        self::assertEquals(
+            'UPDATE users LEFT JOIN country ON country.id = users.country_id SET [users].[active] = ? WHERE [country].[name] = ? AND [users].[name] = ?',
+            $query2->getQuery(false)
+        );
         self::assertEquals([0 => '1', 1 => 'Slovakia', 2 => 'Marek'], $query2->getParameters());
     }
 
@@ -148,8 +132,10 @@ class UpdateTest extends TestCase
             ->set("`users`.`active`", [':active' => 1])
             ->where("`country`.`name` = :country", [':country' => 'Slovakia']);
 
-        self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET `users`.`active` = :active WHERE `country`.`name` = :country',
-            $query->getQuery(false));
+        self::assertEquals(
+            'UPDATE users LEFT JOIN country ON country.id = users.country_id SET `users`.`active` = :active WHERE `country`.`name` = :country',
+            $query->getQuery(false)
+        );
         self::assertEquals([':active' => '1', ':country' => 'Slovakia'], $query->getParameters());
     }
 

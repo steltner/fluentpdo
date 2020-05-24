@@ -2,38 +2,16 @@
 
 namespace Envms\FluentPDO\Queries;
 
-require __DIR__ . '/../_resources/init.php';
-
 use Envms\FluentPDO\Literal;
-use Envms\FluentPDO\Query;
-use PDO;
-use PHPUnit\Framework\TestCase;
+use Envms\FluentPDO\PDOTestCase;
 
-/**
- * Class InsertTest
- *
- * @covers \Envms\FluentPDO\Queries\Insert
- */
-class InsertTest extends TestCase
+class InsertTest extends PDOTestCase
 {
-
-    /** @var Envms\FluentPDO\Query */
-    protected $fluent;
-
-    public function setUp()
-    {
-        global $pdo;
-
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
-
-        $this->fluent = new Query($pdo);
-    }
-
     public function testInsertStatement()
     {
         $query = $this->fluent->insertInto('article', [
             'user_id' => 1,
-            'title'   => 'new title',
+            'title' => 'new title',
             'content' => 'new content'
         ]);
 
@@ -46,7 +24,7 @@ class InsertTest extends TestCase
         $query = $this->fluent->insertInto('article', ['id' => 1])
             ->onDuplicateKeyUpdate([
                 'published_at' => '2011-12-10 12:10:00',
-                'title'   => 'article 1b',
+                'title' => 'article 1b',
                 'content' => new Literal('abs(-1)') // let's update with a literal and a parameter value
             ]);
 
@@ -55,7 +33,7 @@ class InsertTest extends TestCase
         $query2 = $this->fluent->insertInto('article', ['id' => 1])
             ->onDuplicateKeyUpdate([
                 'published_at' => '2011-12-10 12:10:00',
-                'title'   => 'article 1',
+                'title' => 'article 1',
                 'content' => 'content 1',
             ]);
 
@@ -75,10 +53,10 @@ class InsertTest extends TestCase
     {
         $query = $this->fluent->insertInto('article',
             [
-                'user_id'    => 1,
+                'user_id' => 1,
                 'updated_at' => new Literal('NOW()'),
-                'title'      => 'new title',
-                'content'    => 'new content',
+                'title' => 'new title',
+                'content' => 'new content',
             ]);
 
         self::assertEquals('INSERT INTO article (user_id, updated_at, title, content) VALUES (?, NOW(), ?, ?)', $query->getQuery(false));
@@ -90,7 +68,7 @@ class InsertTest extends TestCase
         $query = $this->fluent->insertInto('article',
             [
                 'user_id' => 1,
-                'title'   => 'new title',
+                'title' => 'new title',
                 'content' => 'new content',
             ])->ignore();
 

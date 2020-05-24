@@ -2,32 +2,10 @@
 
 namespace Envms\FluentPDO\Queries;
 
-require __DIR__ . '/../_resources/init.php';
+use Envms\FluentPDO\PDOTestCase;
 
-use Envms\FluentPDO\Query;
-use PDO;
-use PHPUnit\Framework\TestCase;
-
-/**
- * Class SelectTest
- *
- * @covers \Envms\FluentPDO\Queries\Select
- */
-class SelectTest extends TestCase
+class SelectTest extends PDOTestCase
 {
-
-    /** @var Query */
-    protected $fluent;
-
-    public function setUp()
-    {
-        global $pdo;
-
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
-
-        $this->fluent = new Query($pdo);
-    }
-
     public function testBasicQuery()
     {
         $query = $this->fluent
@@ -168,8 +146,6 @@ class SelectTest extends TestCase
         self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], $query->fetch());
     }
 
-
-
     public function testSelectArrayParam()
     {
         $query = $this->fluent
@@ -259,20 +235,27 @@ class SelectTest extends TestCase
         $result2 = $this->fluent->from('user')->fetchAll();
 
         self::assertEquals(['1' => 'Marek', '2' => 'Robert', '3' => 'Chris', '4' => 'Kevin'], $result);
-        self::assertEquals([
-            0 => ['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'],
-            1 => ['id' => '2', 'country_id' => '1', 'type' => 'author', 'name' => 'Robert'],
-            2 => ['id' => '3', 'country_id' => '2', 'type' => 'admin', 'name' => 'Chris'],
-            3 => ['id' => '4', 'country_id' => '2', 'type' => 'author', 'name' => 'Kevin']
-        ], $result2);
+        self::assertEquals(
+            [
+                0 => ['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'],
+                1 => ['id' => '2', 'country_id' => '1', 'type' => 'author', 'name' => 'Robert'],
+                2 => ['id' => '3', 'country_id' => '2', 'type' => 'admin', 'name' => 'Chris'],
+                3 => ['id' => '4', 'country_id' => '2', 'type' => 'author', 'name' => 'Kevin']
+            ],
+            $result2);
     }
 
     public function testFetchAllWithParams()
     {
         $result = $this->fluent->from('user')->fetchAll('id', 'type, name');
 
-        self::assertEquals([1 => ['id' => '1', 'type' => 'admin', 'name' => 'Marek'], 2 => ['id' => '2', 'type' => 'author', 'name' => 'Robert'],
-                            3 => ['id' => '3', 'type' => 'admin', 'name' => 'Chris'], 4 => ['id' => '4', 'type' => 'author', 'name' => 'Kevin']],
+        self::assertEquals(
+            [
+                1 => ['id' => '1', 'type' => 'admin', 'name' => 'Marek'],
+                2 => ['id' => '2', 'type' => 'author', 'name' => 'Robert'],
+                3 => ['id' => '3', 'type' => 'admin', 'name' => 'Chris'],
+                4 => ['id' => '4', 'type' => 'author', 'name' => 'Kevin']
+            ],
             $result);
     }
 

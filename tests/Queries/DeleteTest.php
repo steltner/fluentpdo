@@ -2,32 +2,10 @@
 
 namespace Envms\FluentPDO\Queries;
 
-require __DIR__ . '/../_resources/init.php';
+use Envms\FluentPDO\PDOTestCase;
 
-use PDO;
-use PHPUnit\Framework\TestCase;
-use Envms\FluentPDO\Query;
-
-/**
- * Class DeleteTest
- *
- * @covers \Envms\FluentPDO\Queries\Delete
- */
-class DeleteTest extends TestCase
+class DeleteTest extends PDOTestCase
 {
-
-    /** @var Query */
-    protected $fluent;
-
-    public function setUp()
-    {
-        global $pdo;
-
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
-
-        $this->fluent = new Query($pdo);
-    }
-
     public function testDelete()
     {
         $query = $this->fluent->deleteFrom('user')
