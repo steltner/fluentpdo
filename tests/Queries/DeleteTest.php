@@ -1,7 +1,10 @@
 <?php
 
+namespace Envms\FluentPDO\Queries;
+
 require __DIR__ . '/../_resources/init.php';
 
+use PDO;
 use PHPUnit\Framework\TestCase;
 use Envms\FluentPDO\Query;
 
@@ -20,7 +23,7 @@ class DeleteTest extends TestCase
     {
         global $pdo;
 
-        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }

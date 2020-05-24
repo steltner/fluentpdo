@@ -1,10 +1,14 @@
 <?php
 
+namespace Envms\FluentPDO\Queries;
+
 require __DIR__ . '/../_resources/init.php';
 
+use PDO;
 use PHPUnit\Framework\TestCase;
 use Envms\FluentTest\Model\User;
 use Envms\FluentPDO\Query;
+use stdClass;
 
 /**
  * Class CommonTest
@@ -21,7 +25,7 @@ class CommonTest extends TestCase
     {
         global $pdo;
 
-        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }

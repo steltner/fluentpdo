@@ -1,9 +1,10 @@
 <?php
 
+namespace Envms\FluentPDO;
+
 require __DIR__ . '/_resources/init.php';
 
 use PHPUnit\Framework\TestCase;
-use Envms\FluentPDO\Regex;
 
 /**
  * Class StructureTest

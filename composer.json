@@ -36,6 +36,11 @@
             "Envms\\FluentPDO\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Envms\\FluentPDO\\": "tests/"
+        }
+    },
     "scripts": {
         "test": "php vendor/phpunit/phpunit/phpunit"
     }

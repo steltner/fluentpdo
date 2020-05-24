@@ -1,7 +1,11 @@
 <?php
 
+namespace Envms\FluentPDO\Queries;
+
 require __DIR__ . '/../_resources/init.php';
 
+use Envms\FluentPDO\Literal;
+use PDO;
 use PHPUnit\Framework\TestCase;
 use Envms\FluentPDO\Query;
 
@@ -20,7 +24,7 @@ class UpdateTest extends TestCase
     {
         global $pdo;
 
-        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }
@@ -44,7 +48,7 @@ class UpdateTest extends TestCase
 
     public function testUpdateLiteral()
     {
-        $query = $this->fluent->update('article')->set('published_at', new Envms\FluentPDO\Literal('NOW()'))->where('user_id', 1);
+        $query = $this->fluent->update('article')->set('published_at', new Literal('NOW()'))->where('user_id', 1);
 
         self::assertEquals('UPDATE article SET published_at = NOW() WHERE user_id = ?', $query->getQuery(false));
         self::assertEquals(['0' => '1'], $query->getParameters());

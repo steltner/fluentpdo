@@ -1,9 +1,10 @@
 <?php
 
+namespace Envms\FluentPDO;
+
 require __DIR__ . '/_resources/init.php';
 
 use PHPUnit\Framework\TestCase;
-use Envms\FluentPDO\Structure;
 
 /**
  * Class StructureTest
@@ -31,7 +32,7 @@ class StructureTest extends TestCase
 
     public function testMethodKey()
     {
-        $structure = new Structure('id', ['StructureTest', 'suffix']);
+        $structure = new Structure('id', ['Envms\FluentPDO\StructureTest', 'suffix']);
 
         self::assertEquals('id', $structure->getPrimaryKey('user'));
         self::assertEquals('user_id', $structure->getForeignKey('user'));

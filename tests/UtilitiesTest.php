@@ -1,9 +1,11 @@
 <?php
 
+namespace Envms\FluentPDO;
+
 require __DIR__ . '/_resources/init.php';
 
+use PDO;
 use PHPUnit\Framework\TestCase;
-use Envms\FluentPDO\{Query,Utilities};
 
 /**
  * Class UtilitiesTest
@@ -11,14 +13,14 @@ use Envms\FluentPDO\{Query,Utilities};
 class UtilitiesTest extends TestCase
 {
 
-    /** @var Envms\FluentPDO\Query */
+    /** @var Query */
     protected $fluent;
 
     public function setUp()
     {
         global $pdo;
 
-        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }

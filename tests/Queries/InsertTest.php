@@ -1,9 +1,13 @@
 <?php
 
+namespace Envms\FluentPDO\Queries;
+
 require __DIR__ . '/../_resources/init.php';
 
-use PHPUnit\Framework\TestCase;
+use Envms\FluentPDO\Literal;
 use Envms\FluentPDO\Query;
+use PDO;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class InsertTest
@@ -20,7 +24,7 @@ class InsertTest extends TestCase
     {
         global $pdo;
 
-        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }
@@ -43,7 +47,7 @@ class InsertTest extends TestCase
             ->onDuplicateKeyUpdate([
                 'published_at' => '2011-12-10 12:10:00',
                 'title'   => 'article 1b',
-                'content' => new Envms\FluentPDO\Literal('abs(-1)') // let's update with a literal and a parameter value
+                'content' => new Literal('abs(-1)') // let's update with a literal and a parameter value
             ]);
 
         $q = $this->fluent->from('article', 1);
@@ -72,7 +76,7 @@ class InsertTest extends TestCase
         $query = $this->fluent->insertInto('article',
             [
                 'user_id'    => 1,
-                'updated_at' => new Envms\FluentPDO\Literal('NOW()'),
+                'updated_at' => new Literal('NOW()'),
                 'title'      => 'new title',
                 'content'    => 'new content',
             ]);
