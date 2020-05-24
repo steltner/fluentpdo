@@ -4,6 +4,24 @@ namespace Envms\FluentPDO\Queries;
 
 use Envms\FluentPDO\{Exception, Literal, Utilities};
 
+use function array_key_exists;
+use function array_map;
+use function array_pop;
+use function array_push;
+use function array_search;
+use function array_shift;
+use function array_unshift;
+use function count;
+use function func_get_args;
+use function get_class;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_null;
+use function strpos;
+use function substr;
+use function trigger_error;
+
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
  *
@@ -25,9 +43,7 @@ use Envms\FluentPDO\{Exception, Literal, Utilities};
  */
 abstract class Common extends Base
 {
-
-    /** @var array - methods which are allowed to be called by the magic method __call() */
-    private $validMethods = [
+    private array $validMethods = [
         'comment',
         'from',
         'fullJoin',
@@ -46,18 +62,18 @@ abstract class Common extends Base
     ];
 
     /** @var array - Query tables (also include table from clause FROM) */
-    protected $joins = [];
+    protected array $joins = [];
 
     /** @var bool - Disable adding undefined joins to query? */
-    protected $isSmartJoinEnabled = true;
+    private bool $isSmartJoinEnabled = true;
 
     /**
      * @param string $name
-     * @param array  $parameters - first is $statement followed by $parameters
+     * @param array $parameters - first is $statement followed by $parameters
      *
      * @return $this
      */
-    public function __call($name, $parameters = [])
+    public function __call(string $name, array $parameters = []): self
     {
         if (!in_array($name, $this->validMethods)) {
             trigger_error("Call to invalid method " . get_class($this) . "::{$name}()", E_USER_ERROR);
@@ -82,30 +98,21 @@ abstract class Common extends Base
         return $this->addStatement($clause, $statement, $parameters);
     }
 
-    /**
-     * @return $this
-     */
-    public function enableSmartJoin()
+    public function enableSmartJoin(): self
     {
         $this->isSmartJoinEnabled = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function disableSmartJoin()
+    public function disableSmartJoin(): self
     {
         $this->isSmartJoinEnabled = false;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isSmartJoinEnabled()
+    public function isSmartJoinEnabled(): bool
     {
         return $this->isSmartJoinEnabled;
     }
@@ -113,13 +120,13 @@ abstract class Common extends Base
     /**
      * Add where condition, defaults to appending with AND
      *
-     * @param string|array $condition  - possibly containing ? or :name (PDO syntax)
-     * @param mixed        $parameters
-     * @param string       $separator - should be AND or OR
+     * @param string|array $condition - possibly containing ? or :name (PDO syntax)
+     * @param mixed $parameters
+     * @param string $separator - should be AND or OR
      *
      * @return $this
      */
-    public function where($condition, $parameters = [], $separator = 'AND')
+    public function where($condition, $parameters = [], string $separator = 'AND'): self
     {
         if ($condition === null) {
             return $this->resetClause('WHERE');
@@ -183,12 +190,12 @@ abstract class Common extends Base
     /**
      * Add where appending with OR
      *
-     * @param string $condition  - possibly containing ? or :name (PDO syntax)
-     * @param mixed  $parameters
+     * @param string $condition - possibly containing ? or :name (PDO syntax)
+     * @param mixed $parameters
      *
      * @return $this
      */
-    public function whereOr($condition, $parameters = [])
+    public function whereOr(string $condition, $parameters = []): self
     {
         if (is_array($condition)) { // where(["column1 > ?" => 1, "column2 < ?" => 2])
             foreach ($condition as $key => $val) {
@@ -201,18 +208,13 @@ abstract class Common extends Base
         return $this->where($condition, $parameters, 'OR');
     }
 
-    /**
-     * @return string
-     */
-    protected function getClauseJoin()
+    protected function getClauseJoin(): string
     {
         return implode(' ', $this->statements['JOIN']);
     }
 
-    /**
-     * @return string
-     */
-    protected function getClauseWhere() {
+    protected function getClauseWhere(): string
+    {
         $firstStatement = array_shift($this->statements['WHERE']);
         $query = " WHERE {$firstStatement[1]}"; // append first statement to WHERE without condition
 
@@ -237,7 +239,7 @@ abstract class Common extends Base
      *
      * @return $this
      */
-    private function addJoinStatements($clause, $statement, $parameters = [])
+    private function addJoinStatements($clause, $statement, array $parameters = []): self
     {
         if ($statement === null) {
             $this->joins = [];
@@ -290,7 +292,7 @@ abstract class Common extends Base
      *
      * @return string
      */
-    private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '')
+    private function createJoinStatement($clause, $mainTable, $joinTable, string $joinAlias = ''): string
     {
         if (in_array(substr($mainTable, -1), [':', '.'])) {
             $mainTable = substr($mainTable, 0, -1);
@@ -328,9 +330,9 @@ abstract class Common extends Base
     /**
      * Create undefined joins from statement with column with referenced tables
      *
-     * @param string $statement
+     * @param string|array $statement
      *
-     * @return string - the rewritten $statement (e.g. tab1.tab2:col => tab2.col)
+     * @return string|array - the rewritten $statement (e.g. tab1.tab2:col => tab2.col)
      */
     private function createUndefinedJoins($statement)
     {
@@ -374,11 +376,10 @@ abstract class Common extends Base
     }
 
     /**
-     * @throws Exception
-     *
      * @return string
+     * @throws Exception
      */
-    protected function buildQuery()
+    protected function buildQuery(): string
     {
         // first create extra join from statements with columns with referenced tables
         $statementsWithReferences = ['WHERE', 'SELECT', 'GROUP BY', 'ORDER BY'];
@@ -393,25 +394,20 @@ abstract class Common extends Base
     }
 
     /**
-     * @param $statement
+     * @param array|string $statement
      *
      * @return bool
      */
-    protected function isEscapedJoin($statement)
+    protected function isEscapedJoin($statement): bool
     {
         if (is_array($statement)) {
             $statement = $statement[1];
         }
 
-        return !$this->isSmartJoinEnabled || strpos($statement, '\.') !== false || strpos($statement, '\:') !== false;
+        return !$this->isSmartJoinEnabled() || strpos($statement, '\.') !== false || strpos($statement, '\:') !== false;
     }
 
-    /**
-     * @param $statement
-     *
-     * @return array
-     */
-    private function setJoinNameAlias($statement)
+    private function setJoinNameAlias(string $statement): array
     {
         $this->regex->tableAlias($statement, $matches); // store any found alias in $matches
         $joinAlias = '';
@@ -427,27 +423,12 @@ abstract class Common extends Base
         return [$joinAlias, $joinTable];
     }
 
-    /**
-     * @param $table
-     * @param $joinItem
-     *
-     * @return bool
-     */
-    private function matchTableWithJoin($table, $joinItem)
+    private function matchTableWithJoin(string $table, string $joinItem): bool
     {
         return $table == substr($joinItem, 0, -1);
     }
 
-    /**
-     * @param $clause
-     * @param $statement
-     * @param $parameters
-     * @param $joinAlias
-     * @param $joinTable
-     *
-     * @return $this
-     */
-    private function addRawJoins($clause, $statement, $parameters, $joinAlias, $joinTable)
+    private function addRawJoins($clause, $statement, $parameters, $joinAlias, $joinTable): self
     {
         if (!$joinAlias) {
             $joinAlias = $joinTable;
@@ -463,10 +444,7 @@ abstract class Common extends Base
         }
     }
 
-    /**
-     * @return string
-     */
-    private function setMainTable()
+    private function setMainTable(): string
     {
         if (isset($this->statements['FROM'])) {
             return $this->statements['FROM'];
@@ -503,5 +481,4 @@ abstract class Common extends Base
 
         return $joinItem;
     }
-
 }

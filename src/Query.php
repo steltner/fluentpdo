@@ -15,9 +15,6 @@ use Envms\FluentPDO\Queries\{Insert, Select, Update, Delete};
  * @license   https://www.gnu.org/licenses/gpl-3.0.en.html GNU General Public License, version 3.0
  */
 
-/**
- * Class Query
- */
 class Query
 {
 

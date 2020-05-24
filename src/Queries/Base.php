@@ -2,52 +2,56 @@
 
 namespace Envms\FluentPDO\Queries;
 
+use DateTime;
 use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
+use IteratorAggregate;
+use PDO;
+use PDOStatement;
 
-/**
- * Base query builder
- */
-abstract class Base implements \IteratorAggregate
+use function array_map;
+use function array_merge;
+use function call_user_func;
+use function count;
+use function debug_backtrace;
+use function defined;
+use function fwrite;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_callable;
+use function is_float;
+use function is_int;
+use function is_resource;
+use function is_string;
+use function microtime;
+use function sprintf;
+use function strpos;
+
+abstract class Base implements IteratorAggregate
 {
+    /** Gets the total time of query building, preparation and execution */
+    private float $totalTime;
+    /** Gets the query execution time */
+    private float $executionTime;
 
-    /** @var float */
-    private $totalTime;
-
-    /** @var float */
-    private $executionTime;
-
-    /** @var bool */
+    /** @var bool|object */
     private $object = false;
 
-    /** @var Query */
-    protected $fluent;
+    protected Query $fluent;
 
-    /** @var \PDOStatement */
-    protected $result;
+    protected ?PDOStatement $result;
 
-    /** @var array - definition clauses */
-    protected $clauses = [];
-    /** @var array */
-    protected $statements = [];
-    /** @var array */
-    protected $parameters = [];
+    protected array $clauses = [];
+    protected array $statements = [];
+    protected array $parameters = [];
 
-    /** @var Regex */
-    protected $regex;
+    protected Regex $regex;
 
-    /** @var string */
-    protected $message = '';
+    protected string $message = '';
 
-    /** @var @var int */
-    protected $currentFetchMode;
+    protected ?int $currentFetchMode = null;
 
-    /**
-     * BaseQuery constructor.
-     *
-     * @param Query $fluent
-     * @param       $clauses
-     */
-    protected function __construct(Query $fluent, $clauses)
+    protected function __construct(Query $fluent, array $clauses)
     {
         $this->fluent = $fluent;
         $this->clauses = $clauses;
@@ -66,7 +70,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @throws Exception
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getQuery();
     }
@@ -74,7 +78,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Initialize statement and parameter clauses.
      */
-    private function initClauses()
+    private function initClauses(): void
     {
         foreach ($this->clauses as $clause => $value) {
             if ($value) {
@@ -96,7 +100,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return $this
      */
-    protected function addStatement($clause, $statement, $parameters = [])
+    protected function addStatement($clause, $statement, array $parameters = []): self
     {
         if ($statement === null) {
             return $this->resetClause($clause);
@@ -123,11 +127,11 @@ abstract class Base implements \IteratorAggregate
      *
      * @param        $statement
      * @param string $separator - should be AND or OR
-     * @param array  $parameters
+     * @param array $parameters
      *
      * @return $this
      */
-    protected function addWhereStatement($statement, string $separator = 'AND', $parameters = [])
+    protected function addWhereStatement($statement, string $separator = 'AND', array $parameters = []): self
     {
         if ($statement === null) {
             return $this->resetClause('WHERE');
@@ -153,7 +157,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return $this
      */
-    protected function resetClause($clause)
+    protected function resetClause(string $clause): self
     {
         $this->statements[$clause] = null;
         $this->parameters[$clause] = [];
@@ -167,7 +171,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Implements method from IteratorAggregate
      *
-     * @return \PDOStatement
+     * @return PDOStatement
      *
      * @throws Exception
      */
@@ -179,7 +183,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Execute query with earlier added parameters
      *
-     * @return \PDOStatement
+     * @return PDOStatement|false
      *
      * @throws Exception
      */
@@ -209,11 +213,10 @@ abstract class Base implements \IteratorAggregate
      *
      * @throws Exception
      */
-    private function debugger()
+    private function debugger(): void
     {
         if ($this->fluent->debug) {
             if (!is_callable($this->fluent->debug)) {
-                $backtrace = '';
                 $query = $this->getQuery();
                 $parameters = $this->getParameters();
                 $debug = '';
@@ -250,82 +253,47 @@ abstract class Base implements \IteratorAggregate
         }
     }
 
-    /**
-     * @return Structure
-     */
-    protected function getStructure()
+    protected function getStructure(): Structure
     {
         return $this->fluent->getStructure();
     }
 
-    /**
-     * Get PDOStatement result
-     *
-     * @return \PDOStatement
-     */
-    public function getResult()
+    public function getResult(): ?PDOStatement
     {
         return $this->result;
     }
 
-    /**
-     * Get query parameters
-     *
-     * @return array
-     */
-    public function getParameters()
+    public function getParameters(): array
     {
         return $this->buildParameters();
     }
 
-    /**
-     * @return array
-     */
-    public function getRawClauses()
+    public function getRawClauses(): array
     {
         return $this->clauses;
     }
 
-    /**
-     * @return array
-     */
-    public function getRawStatements()
+    public function getRawStatements(): array
     {
         return $this->statements;
     }
 
-    /**
-     * @return array
-     */
-    public function getRawParameters()
+    public function getRawParameters(): array
     {
         return $this->parameters;
     }
 
-    /**
-     * Gets the total time of query building, preparation and execution
-     *
-     * @return float
-     */
     public function getTotalTime(): float
     {
         return $this->totalTime;
     }
 
-    /**
-     * Gets the query execution time
-     *
-     * @return float
-     */
     public function getExecutionTime(): float
     {
         return $this->executionTime;
     }
 
-    /**
-     * @return string
-     */
-    public function getMessage()
+    public function getMessage(): string
     {
         return $this->message;
     }
@@ -335,11 +303,11 @@ abstract class Base implements \IteratorAggregate
      *
      * @param bool $formatted - Return formatted query
      *
+     * @return string
      * @throws Exception
      *
-     * @return string
      */
-    public function getQuery($formatted = true)
+    public function getQuery(bool $formatted = true): string
     {
         $query = $this->buildQuery();
 
@@ -353,14 +321,14 @@ abstract class Base implements \IteratorAggregate
     /**
      * Converts php null values to Literal instances to be inserted into a database
      */
-    protected function convertNullValues()
+    protected function convertNullValues(): void
     {
         $filterList = ['VALUES', 'ON DUPLICATE KEY UPDATE', 'SET'];
 
         foreach ($this->statements as $clause => $statement) {
             if (in_array($clause, $filterList)) {
                 if (isset($statement[0])) {
-                    for($i = 0; $i < count($statement); $i++) {
+                    for ($i = 0; $i < count($statement); $i++) {
                         foreach ($statement[$i] as $key => $value) {
                             $this->statements[$clause][$i][$key] = Utilities::nullToLiteral($value);
                         }
@@ -377,11 +345,10 @@ abstract class Base implements \IteratorAggregate
     /**
      * Generate query
      *
-     * @throws Exception
-     *
      * @return string
+     * @throws Exception
      */
-    protected function buildQuery()
+    protected function buildQuery(): string
     {
         if ($this->fluent->convertWrite === true) {
             $this->convertNullValues();
@@ -406,12 +373,7 @@ abstract class Base implements \IteratorAggregate
         return trim(str_replace(['\.', '\:'], ['.', ':'], $query));
     }
 
-    /**
-     * @param $clause
-     *
-     * @return bool
-     */
-    private function clauseNotEmpty($clause)
+    private function clauseNotEmpty(string $clause): bool
     {
         if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
             return (bool)count($this->statements[$clause]);
@@ -420,9 +382,6 @@ abstract class Base implements \IteratorAggregate
         }
     }
 
-    /**
-     * @return array
-     */
     protected function buildParameters(): array
     {
         $parameters = [];
@@ -452,11 +411,11 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
-     * @param $value
+     * @param array|DateTime|float|bool|int|Literal|string $value
      *
      * @return string
      */
-    protected function quote($value)
+    protected function quote($value): string
     {
         if (!isset($value)) {
             return "NULL";
@@ -487,13 +446,13 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
-     * @param \DateTime $val
+     * @param DateTime $val
      *
      * @return mixed
      */
     private function formatValue($val)
     {
-        if ($val instanceof \DateTime) {
+        if ($val instanceof DateTime) {
             return $val->format("Y-m-d H:i:s"); // may be driver specific
         }
 
@@ -505,7 +464,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @throws Exception
      */
-    private function prepareQuery($query): void
+    private function prepareQuery(string $query): void
     {
         $this->result = $this->fluent->getPdo()->prepare($query);
 
@@ -531,12 +490,12 @@ abstract class Base implements \IteratorAggregate
 
     /**
      * @param array $parameters
-     * @param int   $startTime
-     * @param int   $execTime
+     * @param int $startTime
+     * @param int $execTime
      *
      * @throws Exception
      */
-    private function executeQuery($parameters, $startTime, $execTime): void
+    private function executeQuery(array $parameters, int $startTime, int $execTime): void
     {
         if ($this->result->execute($parameters) === true) {
             $this->executionTime = microtime(true) - $execTime;
@@ -551,25 +510,22 @@ abstract class Base implements \IteratorAggregate
                 $this->message = $message;
             }
 
-            $this->result = false;
+            $this->result = null;
         }
     }
 
-    /**
-     * @param \PDOStatement $result
-     */
-    private function setObjectFetchMode(\PDOStatement &$result): void
+    private function setObjectFetchMode(PDOStatement &$result): void
     {
         if ($this->object !== false) {
             if (class_exists($this->object)) {
-                $this->currentFetchMode = \PDO::FETCH_CLASS;
+                $this->currentFetchMode = PDO::FETCH_CLASS;
                 $result->setFetchMode($this->currentFetchMode, $this->object);
             } else {
-                $this->currentFetchMode = \PDO::FETCH_OBJ;
+                $this->currentFetchMode = PDO::FETCH_OBJ;
                 $result->setFetchMode($this->currentFetchMode);
             }
-        } elseif ($this->fluent->getPdo()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE) == \PDO::FETCH_BOTH) {
-            $this->currentFetchMode = \PDO::FETCH_ASSOC;
+        } elseif ($this->fluent->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
+            $this->currentFetchMode = PDO::FETCH_ASSOC;
             $result->setFetchMode($this->currentFetchMode);
         }
     }
@@ -577,17 +533,16 @@ abstract class Base implements \IteratorAggregate
     /**
      * Select an item as object
      *
-     * @param  \object|boolean $object If set to true, items are returned as stdClass, otherwise a class
+     * @param object|bool $object If set to true, items are returned as stdClass, otherwise a class
      *                                 name can be passed and a new instance of this class is returned.
      *                                 Can be set to false to return items as an associative array.
      *
      * @return $this
      */
-    public function asObject($object = true)
+    public function asObject($object = true): self
     {
         $this->object = $object;
 
         return $this;
     }
-
 }

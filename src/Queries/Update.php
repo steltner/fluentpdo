@@ -3,6 +3,7 @@
 namespace Envms\FluentPDO\Queries;
 
 use Envms\FluentPDO\{Exception, Literal, Query};
+use PDOStatement;
 
 /**
  * UPDATE query builder
@@ -16,13 +17,6 @@ use Envms\FluentPDO\{Exception, Literal, Query};
  */
 class Update extends Common
 {
-
-    /**
-     * UpdateQuery constructor
-     *
-     * @param Query  $fluent
-     * @param string $table
-     */
     public function __construct(Query $fluent, string $table)
     {
         $clauses = [
@@ -51,7 +45,7 @@ class Update extends Common
      *
      * @return $this
      */
-    public function set($fieldOrArray, $value = false)
+    public function set($fieldOrArray, $value = false): self
     {
         if (!$fieldOrArray) {
             return $this;
@@ -74,13 +68,13 @@ class Update extends Common
     /**
      * Execute update query
      *
-     * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
+     * @param bool $getResultAsPdoStatement true to return the pdo statement instead of row count
      *
      * @throws Exception
      *
-     * @return int|boolean|\PDOStatement
+     * @return int|bool|PDOStatement
      */
-    public function execute($getResultAsPdoStatement = false)
+    public function execute(bool $getResultAsPdoStatement = false)
     {
         if (empty($this->statements['WHERE'])) {
             throw new Exception('Update queries must contain a WHERE clause to prevent unwanted data loss');
@@ -99,18 +93,12 @@ class Update extends Common
         return false;
     }
 
-    /**
-     * @return string
-     */
-    protected function getClauseUpdate()
+    protected function getClauseUpdate(): string
     {
         return 'UPDATE ' . $this->statements['UPDATE'];
     }
 
-    /**
-     * @return string
-     */
-    protected function getClauseSet()
+    protected function getClauseSet(): string
     {
         $setArray = [];
         foreach ($this->statements['SET'] as $field => $value) {

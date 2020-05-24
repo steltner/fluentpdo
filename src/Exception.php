@@ -2,10 +2,9 @@
 
 namespace Envms\FluentPDO;
 
-/**
- * Class Exception
- */
-class Exception extends \Exception
+use Exception as BaseException;
+
+class Exception extends BaseException
 {
 
 }

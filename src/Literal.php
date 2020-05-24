@@ -2,33 +2,17 @@
 
 namespace Envms\FluentPDO;
 
-/**
- * SQL literal value
- */
 class Literal
 {
+    private string $value = '';
 
-    /** @var string */
-    protected $value = '';
-
-    /**
-     * Create literal value
-     *
-     * @param string $value
-     */
-    function __construct($value)
+    public function __construct($value)
     {
         $this->value = $value;
     }
 
-    /**
-     * Get literal value
-     *
-     * @return string
-     */
-    function __toString()
+    public function __toString(): string
     {
         return $this->value;
     }
-
 }

@@ -1,29 +1,17 @@
 <?php
+
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query, Utilities};
+use Envms\FluentPDO\Query;
 
-/**
- * Class Json
- *
- * @package Envms\FluentPDO\Queries
- */
 class Json extends Common
 {
-
     /** @var mixed */
-    protected $fromTable;
+    private $fromTable;
     /** @var mixed */
-    protected $fromAlias;
-    /** @var boolean */
-    protected $convertTypes = false;
+    private $fromAlias;
+    private bool $convertTypes;
 
-    /**
-     * Json constructor
-     *
-     * @param Query  $fluent
-     * @param string $table
-     */
     public function __construct(Query $fluent, string $table)
     {
         $clauses = [
@@ -52,5 +40,4 @@ class Json extends Common
             $this->convertTypes = true;
         }
     }
-
 }

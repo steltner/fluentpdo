@@ -4,36 +4,35 @@ namespace Envms\FluentPDO\Queries;
 
 use Envms\FluentPDO\{Exception, Literal, Query};
 
-/** INSERT query builder
- */
+use function array_filter;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function current;
+use function implode;
+use function is_array;
+use function is_string;
+use function key;
+
 class Insert extends Base
 {
-
-    /** @var array */
-    private $columns = [];
-
-    /** @var array */
-    private $firstValue = [];
-
-    /** @var bool */
-    private $ignore = false;
-    /** @var bool */
-    private $delayed = false;
+    private array $columns = [];
+    private array $firstValue = [];
+    private bool $ignore = false;
+    private bool $delayed = false;
 
     /**
-     * InsertQuery constructor.
-     *
-     * @param Query     $fluent
-     * @param string    $table
-     * @param           $values
+     * @param Query $fluent
+     * @param string $table
+     * @param array $values
      *
      * @throws Exception
      */
-    public function __construct(Query $fluent, $table, $values)
+    public function __construct(Query $fluent, string $table, array $values)
     {
         $clauses = [
-            'INSERT INTO'             => [$this, 'getClauseInsertInto'],
-            'VALUES'                  => [$this, 'getClauseValues'],
+            'INSERT INTO' => [$this, 'getClauseInsertInto'],
+            'VALUES' => [$this, 'getClauseValues'],
             'ON DUPLICATE KEY UPDATE' => [$this, 'getClauseOnDuplicateKeyUpdate'],
         ];
         parent::__construct($fluent, $clauses);
@@ -42,23 +41,14 @@ class Insert extends Base
         $this->values($values);
     }
 
-    /**
-     * Force insert operation to fail silently
-     *
-     * @return Insert
-     */
-    public function ignore()
+    public function ignore(): self
     {
         $this->ignore = true;
 
         return $this;
     }
 
-    /** Force insert operation delay support
-     *
-     * @return Insert
-     */
-    public function delayed()
+    public function delayed(): self
     {
         $this->delayed = true;
 
@@ -68,17 +58,13 @@ class Insert extends Base
     /**
      * Add VALUES
      *
-     * @param $values
+     * @param array $values
      *
      * @return Insert
      * @throws Exception
      */
-    public function values($values)
+    public function values(array $values): self
     {
-        if (!is_array($values)) {
-            throw new Exception('Param VALUES for INSERT query must be array');
-        }
-
         $first = current($values);
         if (is_string(key($values))) {
             // is one row array
@@ -100,7 +86,7 @@ class Insert extends Base
      *
      * @return Insert
      */
-    public function onDuplicateKeyUpdate($values)
+    public function onDuplicateKeyUpdate(array $values): self
     {
         $this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
             $this->statements['ON DUPLICATE KEY UPDATE'], $values
@@ -114,9 +100,9 @@ class Insert extends Base
      *
      * @param mixed $sequence
      *
+     * @return int|false - Last inserted primary key
      * @throws Exception
      *
-     * @return int|bool - Last inserted primary key
      */
     public function execute($sequence = null)
     {
@@ -130,35 +116,25 @@ class Insert extends Base
     }
 
     /**
-     * @param null $sequence
-     *
-     * @throws Exception
+     * @param $sequence
      *
      * @return bool
+     * @throws Exception
+     *
      */
-    public function executeWithoutId($sequence = null)
+    public function executeWithoutId($sequence = null): bool
     {
         $result = parent::execute();
 
-        if ($result) {
-            return true;
-        }
-
-        return false;
+        return $result !== false;
     }
 
-    /**
-     * @return string
-     */
-    protected function getClauseInsertInto()
+    protected function getClauseInsertInto(): string
     {
         return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') . ' INTO ' . $this->statements['INSERT INTO'];
     }
 
-    /**
-     * @return string
-     */
-    protected function getClauseValues()
+    protected function getClauseValues(): string
     {
         $valuesArray = [];
         foreach ($this->statements['VALUES'] as $rows) {
@@ -175,11 +151,7 @@ class Insert extends Base
         return " ($columns) VALUES $values";
     }
 
-
-    /**
-     * @return string
-     */
-    protected function getClauseOnDuplicateKeyUpdate()
+    protected function getClauseOnDuplicateKeyUpdate(): string
     {
         $result = [];
         foreach ($this->statements['ON DUPLICATE KEY UPDATE'] as $key => $value) {
@@ -190,11 +162,11 @@ class Insert extends Base
     }
 
     /**
-     * @param $param
+     * @param Literal|mixed $param
      *
      * @return string
      */
-    protected function parameterGetValue($param)
+    protected function parameterGetValue($param): string
     {
         return $param instanceof Literal ? (string)$param : '?';
     }
@@ -203,11 +175,11 @@ class Insert extends Base
      * Removes all Literal instances from the argument
      * since they are not to be used as PDO parameters but rather injected directly into the query
      *
-     * @param $statements
+     * @param array $statements
      *
      * @return array
      */
-    protected function filterLiterals($statements)
+    protected function filterLiterals(array $statements): array
     {
         $f = function ($item) {
             return !$item instanceof Literal;
@@ -222,9 +194,6 @@ class Insert extends Base
         }, array_filter($statements, $f));
     }
 
-    /**
-     * @return array
-     */
     protected function buildParameters(): array
     {
         $this->parameters = array_merge(
@@ -240,7 +209,7 @@ class Insert extends Base
      *
      * @throws Exception
      */
-    private function addOneValue($oneValue)
+    private function addOneValue(array $oneValue): void
     {
         // check if all $keys are strings
         foreach ($oneValue as $key => $value) {
@@ -259,5 +228,4 @@ class Insert extends Base
         }
         $this->statements['VALUES'][] = $oneValue;
     }
-
 }

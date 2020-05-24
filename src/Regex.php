@@ -2,9 +2,10 @@
 
 namespace Envms\FluentPDO;
 
-/**
- * Regex class
- */
+use function preg_match;
+use function preg_match_all;
+use function preg_replace;
+
 class Regex
 {
     /** @var string - All UTF-8 letter characters */
@@ -80,16 +81,17 @@ class Regex
      *
      * @return null|string|string[]
      */
-    public function removeAdditionalJoins($subject) {
+    public function removeAdditionalJoins($subject)
+    {
         return preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $subject);
     }
 
     /**
      * Match the first file outside of the Fluent source
      *
-     * @param string     $subject
+     * @param string $subject
      * @param array|null $matches
-     * @param string     $directory
+     * @param string $directory
      *
      * @return false|int
      */
@@ -103,7 +105,7 @@ class Regex
     /**
      * Match the string "?" or ":param"
      *
-     * @param string     $subject
+     * @param string $subject
      * @param array|null $matches
      *
      * @return false|int
@@ -116,12 +118,12 @@ class Regex
     /**
      * Match the UTF-8 string "table AS alias"
      *
-     * @param string     $subject
+     * @param string $subject
      * @param array|null $matches
      *
      * @return false|int
      */
-    public function tableAlias($subject, &$matches = null)
+    public function tableAlias(string $subject, ?array &$matches = null)
     {
         return preg_match('/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS . '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
             $subject, $matches);
@@ -130,7 +132,7 @@ class Regex
     /**
      * Match the UTF-8 string "table" or "table."
      *
-     * @param string     $subject
+     * @param string $subject
      * @param array|null $matches
      *
      * @return false|int
@@ -143,7 +145,7 @@ class Regex
     /**
      * Match the UTF-8 string "table." or "table.column"
      *
-     * @param string     $subject
+     * @param string $subject
      * @param array|null $matches
      *
      * @return false|int
@@ -152,5 +154,4 @@ class Regex
     {
         return preg_match_all('/([^[:space:]\(\)]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
     }
-
 }

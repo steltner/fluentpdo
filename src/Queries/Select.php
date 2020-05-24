@@ -2,26 +2,19 @@
 
 namespace Envms\FluentPDO\Queries;
 
+use ArrayIterator;
 use Envms\FluentPDO\{Exception, Query, Utilities};
+use PDO;
+use PDOStatement;
 
-/**
- * SELECT query builder
- */
 class Select extends Common implements \Countable
 {
-
     /** @var mixed */
     private $fromTable;
     /** @var mixed */
     private $fromAlias;
 
-    /**
-     * SelectQuery constructor.
-     *
-     * @param Query     $fluent
-     * @param           $from
-     */
-    function __construct(Query $fluent, $from)
+    public function __construct(Query $fluent, string $from)
     {
         $clauses = [
             'SELECT'   => ', ',
@@ -66,17 +59,11 @@ class Select extends Common implements \Countable
         return $this;
     }
 
-    /**
-     * Return table name from FROM clause
-     */
     public function getFromTable()
     {
         return $this->fromTable;
     }
 
-    /**
-     * Return table alias from FROM clause
-     */
     public function getFromAlias()
     {
         return $this->fromAlias;
@@ -91,7 +78,7 @@ class Select extends Common implements \Countable
      *
      * @return string
      */
-    public function fetchColumn(int $columnNumber = 0)
+    public function fetchColumn(int $columnNumber = 0): string
     {
         if (($s = $this->execute()) !== false) {
             return $s->fetchColumn($columnNumber);
@@ -110,7 +97,7 @@ class Select extends Common implements \Countable
      *
      * @return mixed string, array or false if there is no row
      */
-    public function fetch(?string $column = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT)
+    public function fetch(?string $column = null, int $cursorOrientation = PDO::FETCH_ORI_NEXT)
     {
         if ($this->result === null) {
             $this->execute();
@@ -120,6 +107,7 @@ class Select extends Common implements \Countable
             return false;
         }
 
+        // @FIXME maybe an error, fetch mode is used here but not set
         $row = $this->result->fetch($this->currentFetchMode, $cursorOrientation);
 
         if ($this->fluent->convertRead === true) {
@@ -146,7 +134,7 @@ class Select extends Common implements \Countable
      *
      * @throws Exception
      *
-     * @return array|\PDOStatement
+     * @return array|PDOStatement
      */
     public function fetchPairs($key, $value, $object = false)
     {
@@ -157,7 +145,8 @@ class Select extends Common implements \Countable
         return $s;
     }
 
-    /** Fetch all row
+    /**
+     * Fetch all row
      *
      * @param string $index      - specify index column. Allows for data organization by field using 'field[]'
      * @param string $selectOnly - select columns which could be fetched
@@ -166,7 +155,7 @@ class Select extends Common implements \Countable
      *
      * @return array|bool -  fetched rows
      */
-    public function fetchAll($index = '', $selectOnly = '')
+    public function fetchAll(string $index = '', string $selectOnly = '')
     {
         $indexAsArray = strpos($index, '[]');
 
@@ -194,13 +183,13 @@ class Select extends Common implements \Countable
     }
 
     /**
-     * \Countable interface doesn't break current select query
+     * Countable interface doesn't break current select query
      *
      * @throws Exception
      *
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         $fluent = clone $this;
 
@@ -210,24 +199,18 @@ class Select extends Common implements \Countable
     /**
      * @throws Exception
      *
-     * @return \ArrayIterator|\PDOStatement
+     * @return ArrayIterator|PDOStatement
      */
     public function getIterator()
     {
         if ($this->fluent->convertRead === true) {
-            return new \ArrayIterator($this->fetchAll());
+            return new ArrayIterator($this->fetchAll());
         } else {
             return $this->execute();
         }
     }
 
-    /**
-     * @param $index
-     * @param $indexAsArray
-     *
-     * @return array
-     */
-    private function buildSelectData($index, $indexAsArray)
+    private function buildSelectData(string $index, bool $indexAsArray): array
     {
         $data = [];
 
@@ -247,5 +230,4 @@ class Select extends Common implements \Countable
 
         return $data;
     }
-
 }

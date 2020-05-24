@@ -2,30 +2,20 @@
 
 namespace Envms\FluentPDO;
 
-/**
- * Class Utilities
- */
+use Countable;
+use PDOStatement;
+use Traversable;
+
+use function is_array;
+
 class Utilities
 {
-    /**
-     * Convert "camelCaseWord" to "CAMEL CASE WORD"
-     *
-     * @param string $string
-     *
-     * @return string
-     */
-    public static function toUpperWords($string)
+    public static function toUpperWords(string $string): string
     {
-        $regex = new Regex();
-        return trim(strtoupper($regex->camelCaseSpaced($string)));
+        return trim(strtoupper((new Regex())->camelCaseSpaced($string)));
     }
 
-    /**
-     * @param string $query
-     *
-     * @return string
-     */
-    public static function formatQuery($query)
+    public static function formatQuery(string $query): string
     {
         $regex = new Regex();
 
@@ -39,12 +29,12 @@ class Utilities
     /**
      * Converts columns from strings to types according to PDOStatement::columnMeta()
      *
-     * @param \PDOStatement      $statement
-     * @param array|\Traversable $rows - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
+     * @param PDOStatement $statement
+     * @param array|Traversable $rows - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
      *
-     * @return array|\Traversable
+     * @return array|Traversable
      */
-    public static function stringToNumeric(\PDOStatement $statement, $rows)
+    public static function stringToNumeric(PDOStatement $statement, $rows)
     {
         for ($i = 0; ($columnMeta = $statement->getColumnMeta($i)) !== false; $i++) {
             $type = $columnMeta['native_type'];
@@ -62,7 +52,7 @@ class Utilities
                     if (isset($rows[$columnMeta['name']])) {
                         $rows[$columnMeta['name']] = $rows[$columnMeta['name']] + 0;
                     } else {
-                        if (is_array($rows) || $rows instanceof \Traversable) {
+                        if (is_array($rows) || $rows instanceof Traversable) {
                             foreach ($rows as &$row) {
                                 if (isset($row[$columnMeta['name']])) {
                                     $row[$columnMeta['name']] = $row[$columnMeta['name']] + 0;
@@ -83,7 +73,7 @@ class Utilities
     /**
      * @param $value
      *
-     * @return bool
+     * @return bool|array
      */
     public static function convertSqlWriteValues($value)
     {
@@ -118,17 +108,17 @@ class Utilities
     }
 
     /**
-     * @param $subject
+     * @param array|Countable|mixed $subject
      *
      * @return bool
      */
-    public static function isCountable($subject)
+    public static function isCountable($subject): bool
     {
-        return (is_array($subject) || ($subject instanceof \Countable));
+        return (is_array($subject) || ($subject instanceof Countable));
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      *
      * @return Literal|mixed
      */

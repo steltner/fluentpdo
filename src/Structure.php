@@ -2,24 +2,20 @@
 
 namespace Envms\FluentPDO;
 
-/**
- * Class Structure
- */
+use function is_callable;
+use function sprintf;
+
 class Structure
 {
-
-    /** @var string */
-    private $primaryKey;
-    /** @var string */
+    private string $primaryKey;
+    /** @var array|string */
     private $foreignKey;
 
     /**
-     * Structure constructor
-     *
      * @param string $primaryKey
-     * @param string $foreignKey
+     * @param string|array $foreignKey
      */
-    function __construct($primaryKey = 'id', $foreignKey = '%s_id')
+    public function __construct(string $primaryKey = 'id', $foreignKey = '%s_id')
     {
         if ($foreignKey === null) {
             $foreignKey = $primaryKey;
@@ -28,33 +24,23 @@ class Structure
         $this->foreignKey = $foreignKey;
     }
 
-    /**
-     * @param string $table
-     *
-     * @return string
-     */
-    public function getPrimaryKey($table)
+    public function getPrimaryKey(string $table): string
     {
         return $this->key($this->primaryKey, $table);
     }
 
-    /**
-     * @param string $table
-     *
-     * @return string
-     */
-    public function getForeignKey($table)
+    public function getForeignKey(string $table): string
     {
         return $this->key($this->foreignKey, $table);
     }
 
     /**
      * @param string|callback $key
-     * @param string          $table
+     * @param string $table
      *
-     * @return string
+     * @return string|array
      */
-    private function key($key, $table)
+    private function key($key, string $table)
     {
         if (is_callable($key)) {
             return $key($table);
@@ -62,5 +48,4 @@ class Structure
 
         return sprintf($key, $table);
     }
-
 }

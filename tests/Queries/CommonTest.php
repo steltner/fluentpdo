@@ -21,9 +21,14 @@ class CommonTest extends PDOTestCase
             $returnValue .= "$row[name] - $row[title] ";
         }
 
-        self::assertEquals('SELECT article.*, user.name FROM article LEFT JOIN user ON user.id = article.user_id ORDER BY article.title',
-            $query->getQuery(false));
-        self::assertEquals('Marek - article 1 Robert - article 2 Marek - article 3 Kevin - artïcle 4 Chris - article 5 Chris - სარედაქციო 6 ', $returnValue);
+        self::assertEquals(
+            'SELECT article.*, user.name FROM article LEFT JOIN user ON user.id = article.user_id ORDER BY article.title',
+            $query->getQuery(false)
+        );
+        self::assertEquals(
+            'Marek - article 1 Robert - article 2 Marek - article 3 Kevin - artïcle 4 Chris - article 5 Chris - სარედაქციო 6 ',
+            $returnValue
+        );
     }
 
     public function testShortJoin()
