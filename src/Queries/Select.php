@@ -76,15 +76,13 @@ class Select extends Common implements \Countable
      *
      * @throws Exception
      *
-     * @return string
+     * @return string|null
      */
-    public function fetchColumn(int $columnNumber = 0): string
+    public function fetchColumn(int $columnNumber = 0): ?string
     {
-        if (($s = $this->execute()) !== false) {
-            return $s->fetchColumn($columnNumber);
-        }
+        $result = $this->execute();
 
-        return $s;
+        return isset($result) ? $result->fetchColumn($columnNumber) : null;
     }
 
     /**
@@ -95,7 +93,7 @@ class Select extends Common implements \Countable
      *
      * @throws Exception
      *
-     * @return mixed string, array or false if there is no row
+     * @return mixed string, array or null if there is no row
      */
     public function fetch(?string $column = null, int $cursorOrientation = PDO::FETCH_ORI_NEXT)
     {
@@ -103,8 +101,8 @@ class Select extends Common implements \Countable
             $this->execute();
         }
 
-        if ($this->result === false) {
-            return false;
+        if (!isset($this->result)) {
+            return null;
         }
 
         // @FIXME maybe an error, fetch mode is used here but not set
@@ -114,7 +112,11 @@ class Select extends Common implements \Countable
             $row = Utilities::stringToNumeric($this->result, $row);
         }
 
-        if ($row && $column !== null) {
+        if (!$row) {
+            return null;
+        }
+
+        if ($column !== null) {
             if (is_object($row)) {
                 return $row->{$column};
             } else {
@@ -153,7 +155,7 @@ class Select extends Common implements \Countable
      *
      * @throws Exception
      *
-     * @return array|bool -  fetched rows
+     * @return array|null -  fetched rows
      */
     public function fetchAll(string $index = '', string $selectOnly = '')
     {
@@ -170,15 +172,17 @@ class Select extends Common implements \Countable
         if ($index) {
             return $this->buildSelectData($index, $indexAsArray);
         } else {
-            if (($result = $this->execute()) !== false) {
-                if ($this->fluent->convertRead === true) {
-                    return Utilities::stringToNumeric($result, $result->fetchAll());
-                } else {
-                    return $result->fetchAll();
-                }
+            $result = $this->execute();
+
+            if (!isset($result)) {
+                return null;
             }
 
-            return false;
+            if ($this->fluent->convertRead === true) {
+                return Utilities::stringToNumeric($result, $result->fetchAll());
+            } else {
+                return $result->fetchAll();
+            }
         }
     }
 

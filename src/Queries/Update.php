@@ -72,7 +72,7 @@ class Update extends Common
      *
      * @throws Exception
      *
-     * @return int|bool|PDOStatement
+     * @return int|null|PDOStatement
      */
     public function execute(bool $getResultAsPdoStatement = false)
     {
@@ -86,11 +86,7 @@ class Update extends Common
             return $result;
         }
 
-        if ($result) {
-            return $result->rowCount();
-        }
-
-        return false;
+        return isset($result) ? $result->rowCount() : null;
     }
 
     protected function getClauseUpdate(): string

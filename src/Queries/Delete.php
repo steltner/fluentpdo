@@ -61,7 +61,7 @@ class Delete extends Common
     /**
      * Execute DELETE query
      *
-     * @return false|int
+     * @return int|null
      * @throws Exception
      *
      */
@@ -72,11 +72,8 @@ class Delete extends Common
         }
 
         $result = parent::execute();
-        if ($result) {
-            return $result->rowCount();
-        }
 
-        return false;
+        return isset($result) ? $result->rowCount() : null;
     }
 
     protected function getClauseDelete(): string

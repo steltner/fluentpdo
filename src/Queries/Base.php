@@ -183,7 +183,7 @@ abstract class Base implements IteratorAggregate
     /**
      * Execute query with earlier added parameters
      *
-     * @return PDOStatement|false
+     * @return PDOStatement|null
      *
      * @throws Exception
      */
@@ -196,14 +196,16 @@ abstract class Base implements IteratorAggregate
 
         $this->prepareQuery($query);
 
-        if ($this->result !== false) {
-            $this->setObjectFetchMode($this->result);
-
-            $execTime = microtime(true);
-
-            $this->executeQuery($parameters, $startTime, $execTime);
-            $this->debugger();
+        if ($this->result === false) {
+            return null;
         }
+
+        $this->setObjectFetchMode($this->result);
+
+        $execTime = microtime(true);
+
+        $this->executeQuery($parameters, $startTime, $execTime);
+        $this->debugger();
 
         return $this->result;
     }
@@ -514,7 +516,7 @@ abstract class Base implements IteratorAggregate
         }
     }
 
-    private function setObjectFetchMode(PDOStatement &$result): void
+    private function setObjectFetchMode(PDOStatement $result): void
     {
         if ($this->object !== false) {
             if (class_exists($this->object)) {

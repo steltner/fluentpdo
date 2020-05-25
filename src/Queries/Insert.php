@@ -100,7 +100,7 @@ class Insert extends Base
      *
      * @param mixed $sequence
      *
-     * @return int|false - Last inserted primary key
+     * @return int|null - Last inserted primary key
      * @throws Exception
      *
      */
@@ -108,11 +108,7 @@ class Insert extends Base
     {
         $result = parent::execute();
 
-        if ($result) {
-            return $this->fluent->getPdo()->lastInsertId($sequence);
-        }
-
-        return false;
+        return isset($result) ? $this->fluent->getPdo()->lastInsertId($sequence) : null;
     }
 
     /**
@@ -126,7 +122,7 @@ class Insert extends Base
     {
         $result = parent::execute();
 
-        return $result !== false;
+        return isset($result);
     }
 
     protected function getClauseInsertInto(): string
