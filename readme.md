@@ -11,7 +11,9 @@ FluentPDO is a PHP SQL query builder using PDO. It's a quick and light library f
 
 ## Requirements
 
-The latest (2.x) release of FluentPDO officially supports PHP 7.1, 7.2 and 7.3. v2.x is actively maintained.
+Version 3 release supports PHP 7.4 and is actively maintained.
+
+The legacy (2.x) release of FluentPDO officially supports PHP 7.1, 7.2 and 7.3. v2.x is from original package and is no longer supported and will not be maintained or updated.
 
 The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** v1.x is no longer supported and will not be maintained or updated.
 
@@ -21,29 +23,16 @@ The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** v1.x 
 
 ## Install
 
-### Composer
-
-The preferred way to install FluentPDO is via [composer](http://getcomposer.org/). Version 2.0 is now released! Please start using 2.x in your projects
-and let us know of any issues you find, they will be resolved quickly.
+Use composer to install, only in Version ^3, Version 2 is deprecated.
 
 Add the following line in your `composer.json` file:
 
 	"require": {
 		...
-		"envms/fluentpdo": "^2.1.0"
+		"geste/fluentpdo": "^3"
 	}
 
 update your dependencies with `composer update`, and you're done!
-
-### Copy
-
-If you prefer not to use composer, create the directory `Envms/FluentPDO` in your library directory, and drop this repository into it. Finally, add:
-
-```php
-require "[lib-dir]/Envms/FluentPDO/src/Query.php";
-```
-
-to the top of your application. **Note:** You will need an autoloader to use FluentPDO without changing its source code.
 
 ## Getting Started
 
@@ -161,7 +150,7 @@ $query = $fluent->deleteFrom('article', 1)->execute(); // shorter version if del
 
 ***Note**: INSERT, UPDATE and DELETE queries will only run after you call `->execute()`*
 
-Full documentation can be found on the [FluentPDO homepage](http://envms.github.io/fluentpdo/)
+Full documentation can be found on the [FluentPDO homepage](http://envms.github.io/fluentpdo/) but is partly no longer compatible anymore!
 
 ## License
 
