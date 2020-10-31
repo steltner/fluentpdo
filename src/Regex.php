@@ -22,7 +22,7 @@ class Regex
      *
      * @return null|string|string[]
      */
-    public function camelCaseSpaced($subject)
+    public function camelCaseSpaced(string $subject)
     {
         return preg_replace('/(.)([A-Z]+)/', '$1 $2', $subject);
     }
@@ -37,11 +37,12 @@ class Regex
      *
      * @return null|string|string[]
      */
-    public function splitClauses($subject)
+    public function splitClauses(string $subject)
     {
         return preg_replace(
             '/\b(WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES|SET)\b/',
-            "\n$0", $subject
+            "\n$0",
+            $subject
         );
     }
 
@@ -54,11 +55,12 @@ class Regex
      *
      * @return null|string|string[]
      */
-    public function splitSubClauses($subject)
+    public function splitSubClauses(string $subject)
     {
         return preg_replace(
             '/\b(INNER|OUTER|LEFT|RIGHT|FULL|CASE|WHEN|END|ELSE|AND|OR)\b/',
-            "\n    $0", $subject
+            "\n    $0",
+            $subject
         );
     }
 
@@ -69,7 +71,7 @@ class Regex
      *
      * @return null|string|string[]
      */
-    public function removeLineEndWhitespace($subject)
+    public function removeLineEndWhitespace(string $subject)
     {
         return preg_replace("/\s+\n/", "\n", $subject);
     }
@@ -81,7 +83,7 @@ class Regex
      *
      * @return null|string|string[]
      */
-    public function removeAdditionalJoins($subject)
+    public function removeAdditionalJoins(string $subject)
     {
         return preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $subject);
     }
@@ -90,12 +92,12 @@ class Regex
      * Match the first file outside of the Fluent source
      *
      * @param string $subject
-     * @param array|null $matches
+     * @param ?array $matches
      * @param string $directory
      *
      * @return false|int
      */
-    public function compareLocation($subject, &$matches = null, $directory = null)
+    public function compareLocation(string $subject, &$matches = null, $directory = null)
     {
         $directory = ($directory === null) ? preg_quote(__DIR__, '/') : preg_quote($directory, '/');
 
@@ -110,9 +112,9 @@ class Regex
      *
      * @return false|int
      */
-    public function sqlParameter($subject, &$matches = null)
+    public function sqlParameter(string $subject, &$matches = null)
     {
-        return preg_match('/(\?|:\w+)/i', $subject, $matches);
+        return preg_match('/(\?|:\w+)/', $subject, $matches);
     }
 
     /**
@@ -125,8 +127,11 @@ class Regex
      */
     public function tableAlias(string $subject, ?array &$matches = null)
     {
-        return preg_match('/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS . '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
-            $subject, $matches);
+        return preg_match(
+            '/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS . '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
+            $subject,
+            $matches
+        );
     }
 
     /**
@@ -137,7 +142,7 @@ class Regex
      *
      * @return false|int
      */
-    public function tableJoin($subject, &$matches = null)
+    public function tableJoin(string $subject, &$matches = null)
     {
         return preg_match_all('/([' . self::SQLCHARS . ']+[.:]?)/u', $subject, $matches);
     }
@@ -150,8 +155,8 @@ class Regex
      *
      * @return false|int
      */
-    public function tableJoinFull($subject, &$matches = null)
+    public function tableJoinFull(string $subject, &$matches = null)
     {
-        return preg_match_all('/([^[:space:]\(\)]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
+        return preg_match_all('/([^[:space:]()]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
     }
 }

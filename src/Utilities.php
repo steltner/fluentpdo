@@ -58,6 +58,7 @@ class Utilities
                                     $row[$columnMeta['name']] = $row[$columnMeta['name']] + 0;
                                 }
                             }
+                            unset($row);
                         }
                     }
                     break;

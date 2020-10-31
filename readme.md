@@ -13,15 +13,11 @@ FluentPDO is a PHP SQL query builder using PDO. It's a quick and light library f
 
 Version 3 release supports PHP 7.4 and is actively maintained.
 
-The legacy (2.x) release of FluentPDO officially supports PHP 7.1, 7.2 and 7.3. v2.x is from original package and is no longer supported and will not be maintained or updated.
-
-The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** v1.x is no longer supported and will not be maintained or updated.
-
 ## Reference
 
 [Sitepoint - Getting Started with FluentPDO](http://www.sitepoint.com/getting-started-fluentpdo/)
 
-## Install
+## Installation
 
 Use composer to install, only in Version ^3, Version 2 is deprecated.
 
