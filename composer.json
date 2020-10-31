@@ -12,7 +12,7 @@
         "mysql",
         "oracle"
     ],
-    "homepage": "https://github.com/geste/fluentpdo",
+    "homepage": "https://github.com/steltner/fluentpdo",
     "license": [
         "Apache-2.0",
         "GPL-2.0+"
