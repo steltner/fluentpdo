@@ -112,13 +112,11 @@ class Insert extends Base
     }
 
     /**
-     * @param $sequence
-     *
      * @return bool
      * @throws Exception
      *
      */
-    public function executeWithoutId($sequence = null): bool
+    public function executeWithoutId(): bool
     {
         $result = parent::execute();
 
