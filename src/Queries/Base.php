@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Envms\FluentPDO\Queries;
 
@@ -33,7 +33,7 @@ abstract class Base implements IteratorAggregate
     /** Gets the query execution time */
     private float $executionTime;
 
-    /** @var bool|object */
+    /** @var bool|string */
     private $object = false;
 
     protected Query $fluent;
@@ -48,7 +48,7 @@ abstract class Base implements IteratorAggregate
 
     protected string $message = '';
 
-    protected ?int $currentFetchMode = null;
+    protected ?int $currentFetchMode = PDO::FETCH_BOTH;
 
     protected function __construct(Query $fluent, array $clauses)
     {
@@ -279,7 +279,7 @@ abstract class Base implements IteratorAggregate
     /**
      * Select an item as object
      *
-     * @param object|boolean $object  If set to true, items are returned as stdClass, otherwise a class
+     * @param string|boolean $object  If set to true, items are returned as stdClass, otherwise a class
      *                                name can be passed and a new instance of this class is returned.
      *                                Can be set to false to return items as an associative array.
      *
@@ -357,7 +357,7 @@ abstract class Base implements IteratorAggregate
 
             if (is_array($clauses)) {
                 foreach ($clauses as $key => $value) {
-                    if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
+                    if (is_string($key) && strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
                         $parameters += [$key => $value];
                     } else {
                         $parameters[] = $value;
@@ -374,9 +374,9 @@ abstract class Base implements IteratorAggregate
     /**
      * @param array|DateTime|float|bool|int|Literal|string $value
      *
-     * @return string
+     * @return string|int
      */
-    protected function quote($value): string
+    protected function quote($value)
     {
         if (!isset($value)) {
             return "NULL";
@@ -460,12 +460,12 @@ abstract class Base implements IteratorAggregate
 
     /**
      * @param array $parameters
-     * @param int $startTime
-     * @param int $execTime
+     * @param float $startTime
+     * @param float $execTime
      *
      * @throws Exception
      */
-    private function executeQuery(array $parameters, int $startTime, int $execTime): void
+    private function executeQuery(array $parameters, float $startTime, float $execTime): void
     {
         if ($this->result->execute($parameters) === true) {
             $this->executionTime = microtime(true) - $execTime;
@@ -485,7 +485,7 @@ abstract class Base implements IteratorAggregate
     private function setObjectFetchMode(PDOStatement $result): void
     {
         if ($this->object !== false) {
-            if (class_exists($this->object)) {
+            if (is_string($this->object) && class_exists($this->object)) {
                 $this->currentFetchMode = PDO::FETCH_CLASS;
                 $result->setFetchMode($this->currentFetchMode, $this->object);
             } else {

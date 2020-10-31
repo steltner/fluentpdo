@@ -1,12 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Envms\FluentPDO;
 
 use Countable;
+use Envms\FluentPDO\Queries\Base;
 use PDOStatement;
 use Traversable;
 
 use function is_array;
+use function is_string;
 
 class Utilities
 {
@@ -15,8 +17,16 @@ class Utilities
         return trim(strtoupper((new Regex())->camelCaseSpaced($string)));
     }
 
-    public static function formatQuery(string $query): string
+    /**
+     * @param string|Base $query
+     * @return string
+     */
+    public static function formatQuery($query): string
     {
+        if (!is_string($query)) {
+            $query = (string) $query;
+        }
+
         $regex = new Regex();
 
         $query = $regex->splitClauses($query);

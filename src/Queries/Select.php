@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Envms\FluentPDO\Queries;
 
@@ -82,7 +82,17 @@ class Select extends Common implements \Countable
     {
         $result = $this->execute();
 
-        return isset($result) ? $result->fetchColumn($columnNumber) : null;
+        if (!isset($result)) {
+            return null;
+        }
+
+        $column = $result->fetchColumn($columnNumber);
+
+        if ($column === false) {
+            return null;
+        }
+
+        return $column;
     }
 
     /**
@@ -105,7 +115,6 @@ class Select extends Common implements \Countable
             return null;
         }
 
-        // @FIXME maybe an error, fetch mode is used here but not set
         $row = $this->result->fetch($this->currentFetchMode, $cursorOrientation);
 
         if ($this->fluent->convertRead === true) {

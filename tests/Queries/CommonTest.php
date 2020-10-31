@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Envms\FluentPDO\Queries;
 
@@ -256,7 +256,7 @@ class CommonTest extends PDOTestCase
     {
         $query = $this->fluent->from('user')->where('id > ?', 0)->orderBy('name');
         $query = $query->where('name = ?', 'Marek');
-        $this->fluent->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+        $query->asObject();
 
         $expectObj = new stdClass();
         $expectObj->id = 1;
@@ -265,6 +265,7 @@ class CommonTest extends PDOTestCase
         $expectObj->name = 'Marek';
 
         self::assertEquals(['0' => '0', '1' => 'Marek'], $query->getParameters());
+
         self::assertEquals($expectObj, $query->fetch());
     }
 
