@@ -22,10 +22,8 @@ use Envms\FluentPDO\Queries\{Insert, Select, Update, Delete};
  */
 class Query
 {
-    /** @var PDO */
-    protected $pdo;
-    /** @var Structure */
-    protected $structure;
+    protected ?PDO $pdo;
+    protected ?Structure $structure;
 
     /** @var bool|callable */
     public $debug = false;
@@ -38,19 +36,10 @@ class Query
     /** If a query errors, this determines how to handle it */
     public bool $exceptionOnError = false;
 
-    /** @var string */
-    protected $table;
-    /** @var string */
-    protected $prefix;
-    /** @var string */
-    protected $separator;
+    protected ?string $table;
+    protected string $prefix;
+    protected string $separator;
 
-    /**
-     * Query constructor
-     *
-     * @param PDO        $pdo
-     * @param ?Structure $structure
-     */
     public function __construct(PDO $pdo, ?Structure $structure = null)
     {
         $this->pdo = $pdo;
@@ -175,17 +164,11 @@ class Query
         return call_user_func_array([$this, 'delete'], $args);
     }
 
-    /**
-     * @return PDO
-     */
     public function getPdo(): PDO
     {
         return $this->pdo;
     }
 
-    /**
-     * @return Structure
-     */
     public function getStructure(): Structure
     {
         return $this->structure;
@@ -225,67 +208,42 @@ class Query
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getFullTableName(): string
     {
         return $this->prefix . $this->separator . $this->table;
     }
 
-    /**
-     * @return string
-     */
     public function getPrefix(): string
     {
         return $this->prefix;
     }
 
-    /**
-     * @return string
-     */
     public function getSeparator(): string
     {
         return $this->separator;
     }
 
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return $this->table;
     }
 
-    /**
-     * @param bool $flag
-     */
     public function throwExceptionOnError(bool $flag): void
     {
         $this->exceptionOnError = $flag;
     }
 
-    /**
-     * @param bool $read
-     * @param bool $write
-     */
     public function convertTypes(bool $read, bool $write): void
     {
         $this->convertRead = $read;
         $this->convertWrite = $write;
     }
 
-    /**
-     * @param bool $flag
-     */
     public function convertReadTypes(bool $flag): void
     {
         $this->convertRead = $flag;
     }
 
-    /**
-     * @param bool $flag
-     */
     public function convertWriteTypes(bool $flag): void
     {
         $this->convertWrite = $flag;

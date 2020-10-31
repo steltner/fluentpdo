@@ -204,8 +204,6 @@ abstract class Base implements IteratorAggregate
         $execTime = microtime(true);
 
         $this->executeQuery($parameters, $startTime, $execTime);
-        $this->debugger();
-        $this->executeQuery($parameters, $startTime, $execTime);
         $this->debug();
 
         return $this->result;
