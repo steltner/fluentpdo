@@ -507,16 +507,12 @@ abstract class Base implements IteratorAggregate
     {
         if (!empty($this->fluent->debug)) {
             if (!is_callable($this->fluent->debug)) {
-                $backtrace = '';
-                $query = $this->getQuery();
+                $debug = $this->getQuery();
                 $parameters = $this->getParameters();
-                $debug = '';
 
                 if ($parameters) {
-                    $debug = '# parameters: ' . implode(', ', array_map([$this, 'quote'], $parameters)) . "\n";
+                    $debug = '# parameters: ' . implode(', ', array_map([$this, 'quote'], $parameters)) . "\n" . $debug;
                 }
-
-                $debug .= $query;
 
                 foreach (debug_backtrace() as $backtrace) {
                     if (isset($backtrace['file']) && !$this->regex->compareLocation($backtrace['file'])) {
