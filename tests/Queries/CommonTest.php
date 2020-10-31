@@ -3,7 +3,6 @@
 namespace Envms\FluentPDO\Queries;
 
 use Envms\FluentPDO\PDOTestCase;
-use PDO;
 use Envms\FluentTest\Model\User;
 use stdClass;
 

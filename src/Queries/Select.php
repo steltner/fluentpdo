@@ -3,11 +3,12 @@
 namespace Envms\FluentPDO\Queries;
 
 use ArrayIterator;
+use Countable;
 use Envms\FluentPDO\{Exception, Query, Utilities};
 use PDO;
 use PDOStatement;
 
-class Select extends Common implements \Countable
+class Select extends Common implements Countable
 {
     /** @var mixed */
     private $fromTable;
@@ -150,7 +151,7 @@ class Select extends Common implements \Countable
     public function fetchPairs($key, $value, $object = false)
     {
         if (($s = $this->select("$key, $value", true)->asObject($object)->execute()) !== false) {
-            return $s->fetchAll(\PDO::FETCH_KEY_PAIR);
+            return $s->fetchAll(PDO::FETCH_KEY_PAIR);
         }
 
         return $s;
